@@ -1130,6 +1130,7 @@
                 this.session.isActive ? await this.capturePhoto() : this.startSession();
             }
             startSession() {
+                this.session.reset();
                 const settings = {
                     photoCount: parseInt(Utils.$('input[name="photo-count"]:checked').value),
                     layout: Utils.$('input[name="layout"]:checked').value,
@@ -1230,4 +1231,5 @@
     </script>
 </body>
 </html>
+
 
