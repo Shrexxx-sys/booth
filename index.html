@@ -827,9 +827,15 @@
         }
         class SessionManager {
             constructor() {
-                this.reset();
+                this.isActive = false;
+                this.photos = [];
+                this.undonePhotos = [];
+                this.targetCount = 4;
+                this.settings = {};
             }
             start(settings) {
+                this.photos = [];
+                this.undonePhotos = [];
                 this.isActive = true;
                 this.settings = { ...settings };
                 this.targetCount = settings.photoCount;
@@ -850,13 +856,6 @@
             }
             isComplete() { return this.photos.length >= this.targetCount; }
             getProgress() { return (this.photos.length / this.targetCount) * 100; }
-            reset() {
-                this.isActive = false;
-                this.photos = [];
-                this.undonePhotos = [];
-                this.targetCount = 4;
-                this.settings = {};
-            }
         }
         class Countdown {
             constructor(element) {
@@ -1130,7 +1129,6 @@
                 this.session.isActive ? await this.capturePhoto() : this.startSession();
             }
             startSession() {
-                this.session.reset();
                 const settings = {
                     photoCount: parseInt(Utils.$('input[name="photo-count"]:checked').value),
                     layout: Utils.$('input[name="layout"]:checked').value,
@@ -1231,5 +1229,3 @@
     </script>
 </body>
 </html>
-
-
