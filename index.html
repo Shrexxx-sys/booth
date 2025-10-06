@@ -667,16 +667,20 @@
                     <button id="share-btn" class="action-button" disabled aria-label="Share final image">
                         Share
                     </button>
-                    <button id="retake-btn" class="action-button" disabled aria-label="Undo last photo"
+                    <button id="undo-btn" class="action-button" disabled aria-label="Undo last photo"
                         style="display: none;">
-                        Undo Last Photo
+                        Undo
+                    </button>
+                    <button id="redo-btn" class="action-button" disabled aria-label="Redo last undone photo"
+                        style="display: none;">
+                        Redo
                     </button>
                 </div>
             </section>
         </main>
     </div>
     <audio id="shutter-sound"
-        src="data:audio/mpeg;base64,UklGRigBAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAAABkYXRhJAEAAAD//wD/APMA9QD1APMA8gDyAPMA8gDzAPMA9ADzAPMA8wDzAO8A8ADuAO4A7gDtAOwA7QDqAOsA6ADpAOYA5QDMAa4BigGMAbABsQGvAbQBswG3AbgBuwG9AcABwAHCAcMBxAHIAcsBzQHPAdEB0wHYAdwB4AHjAfEB8gH0AfkB/gIAAgQDCAQaBDwETAR8BIgElATsBSAFOAVcBYgFqAXMBdQF6AX8BhQGMAZABlwGgAaUBqwGvAbYBvAHAAccBzQHTAdgB3wHlAfYCAwIGAhQCHQImAi8CSQJOAl8CbQJ/AocCkAKbAqECqQKyArsCwwLFAs8C1wLeAvUC/wMMgxCDFIMcgyQDJ4MyAzqDP4NAg0qDWoNjg2wDdIN9g4yDmYOlg6yDsoO+g8WDywPaA+ED5wPzA/sEBAQcBGQEcAR4BIIEjASyBNoE+gUGBSEFKwVCBVoFYAWMBbUFzAXfBesGAQYUBiEGNQZNBlUGYwZ5BoMGmAavBr0GywbqBv0HFAchBywHQAdQB1sHcwfIB/8IPAjBCLoI4wj3CSQJLQlDCVwJaQlxCYkJkQmoCb8JygnbCfQKAwoMCi0KRgpVCmIKaAqBCqMKwArlCvwLJQszDEEMVwx4DIkMrQzcDOcM/A0EDRQNKA1HDV0Ngg2VDbcN7A4ADiAORw5aDogOzA7jDwwPNg9GD18Pag9/D5cPrw/JD+8QBhATEB8QKhA0EDoQPhBFEE4QWxBcEGIQahBwEHcQhxCUEJkQoBClEKwQthC+EMcQ0BDhEO0RChEeESoRTBFaEWwRjBGeEagRyBHUEewSBhIaEiYSUhJuEn4SihKaEsYS3hMIDQ=="
+        src="data:audio/mpeg;base64,UklGRigBAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAAABkYXRhJAEAAAD//wD/APMA9QD1APMA8gDyAPMA8gDzAPMA9ADzAPMA8wDzAO8A8ADuAO4A7gDtAOwA7QDqAOsA6ADpAOYA5QDMAa4BigGMAbABsQGvAbQBswG3AbgBuwG9AcABwAHCAcMBxAHIAcsBzQHPAdEB0wHYAdwB4AHjAfEB8gH0AfkB/gIAAgQDCAQaBDwETAR8BIgElATsBSAFOAVcBYgFqAXMBdQF6AX8BhQGMAZABlwGgAaUBqwGvAbYBvAHAAccBzQHTAdgB3wHlAfYCAwIGAhQCHQImAi8CSQJOAl8CbQJ/AocCkAKbAqECqQKyArsCwwLFAs8C1wLeAvUC/wMMgxCDFIMcgyQDJ4MyAzqDP4NAg0qDWoNjg2wDdIN9g4yDmYOlg6yDsoO+g8WDywPaA+ED5wPzA/sEBAQcBGQEcAR4BIIEjASyBNoE+gUGBSEFKwVCBVoFYAWMBbUFzAXfBesGAQYUBiEGNQZNBlUGYwZ5BoMGmAavBr0GywbqBv0HFAchBywHQAdQB1sHcwfIB/8IPAjBCLoI4wj3CSQJLQlDCVwJaQlxCYkJkQmoCb8JygnbCfQKAwoMCi0KRgpVCmIKaAqBCqMKwArlCvwLJQszDEEMVwx4DIkMrQzcDOcM/A0EDRQNKA1HDV0Ngg2VDbcN7A4ADiAORw5aDogOzA7jDwwPNg9GD18Pag9/D5cPrw/JD+oQBhATEB8QKhA0EDoQPhBFEE4QWxBcEGIQahBwEHcQhxCUEJkQoBClEKwQthC+EMcQ0BDhEO0RChEeESoRTBFaEWwRjBGeEagRyBHUEewSBhIaEiYSUhJuEn4SihKaEsYS3hMIDQ=="
         preload="auto"></audio>
     <script>
         const CONFIG = {
@@ -791,13 +795,26 @@
                 this.settings = { ...settings };
                 this.targetCount = settings.photoCount;
             }
-            addPhoto(dataUrl) { this.photos.push(dataUrl); }
-            removeLastPhoto() { if (this.photos.length > 0) this.photos.pop(); }
+            addPhoto(dataUrl) { 
+                this.photos.push(dataUrl);
+                this.undonePhotos = [];
+            }
+            undo() {
+                if (this.photos.length > 0) {
+                    this.undonePhotos.push(this.photos.pop());
+                }
+            }
+            redo() {
+                if (this.undonePhotos.length > 0) {
+                    this.photos.push(this.undonePhotos.pop());
+                }
+            }
             isComplete() { return this.photos.length >= this.targetCount; }
             getProgress() { return (this.photos.length / this.targetCount) * 100; }
             reset() {
                 this.isActive = false;
                 this.photos = [];
+                this.undonePhotos = [];
                 this.targetCount = 4;
                 this.settings = {};
             }
@@ -978,7 +995,8 @@
                     mainButton: Utils.$('#main-action-btn'),
                     downloadButton: Utils.$('#download-btn'),
                     shareButton: Utils.$('#share-btn'),
-                    retakeButton: Utils.$('#retake-btn'),
+                    undoButton: Utils.$('#undo-btn'),
+                    redoButton: Utils.$('#redo-btn'),
                     setupFieldset: Utils.$('#setup-fieldset'),
                     progressIndicator: Utils.$('#progress-indicator'),
                     progressBar: Utils.$('.progress-bar'),
@@ -998,7 +1016,8 @@
                 this.ui.mainButton.addEventListener('click', () => this.handleMainAction());
                 this.ui.downloadButton.addEventListener('click', () => this.handleDownload());
                 this.ui.shareButton.addEventListener('click', () => this.handleShare());
-                this.ui.retakeButton.addEventListener('click', () => this.handleRetake());
+                this.ui.undoButton.addEventListener('click', () => this.handleUndo());
+                this.ui.redoButton.addEventListener('click', () => this.handleRedo());
                 this.ui.setupFieldset.addEventListener('change', e => {
                     if (e.target.name === 'filter') this.camera.applyFilter(e.target.value);
                 });
@@ -1012,6 +1031,17 @@
             updateProgress(percentage) {
                 this.ui.progressIndicator.style.width = `${percentage}%`;
                 this.ui.progressBar.setAttribute('aria-valuenow', Math.round(percentage));
+            }
+            updateUndoRedoState() {
+                const canUndo = this.session.photos.length > 0;
+                const canRedo = this.session.undonePhotos.length > 0;
+                
+                this.ui.undoButton.disabled = !canUndo;
+                this.ui.redoButton.disabled = !canRedo;
+
+                const inProgress = this.session.isActive && !this.session.isComplete();
+                this.ui.undoButton.style.display = inProgress ? 'block' : 'none';
+                this.ui.redoButton.style.display = inProgress ? 'block' : 'none';
             }
             async handleMainAction() {
                 if (this.isCapturing) return;
@@ -1034,7 +1064,7 @@
                 this.ui.setupFieldset.disabled = true;
                 this.ui.downloadButton.disabled = true;
                 this.ui.shareButton.disabled = true;
-                this.ui.retakeButton.style.display = 'none';
+                this.updateUndoRedoState();
                 this.renderer.clear();
                 this.updateProgress(0);
                 this.camera.applyFilter(settings.filter);
@@ -1044,11 +1074,13 @@
                 if (this.isCapturing) return;
                 this.isCapturing = true;
                 this.setMainButton('Get Ready...', true);
-                this.ui.retakeButton.disabled = true;
+                this.ui.undoButton.disabled = true;
+                this.ui.redoButton.disabled = true;
                 await this.countdown.run(CONFIG.COUNTDOWN_SECONDS);
                 this.ui.flash.classList.add('animate');
                 this.ui.shutterSound.play().catch(e => console.warn("Sound blocked by browser"));
-                const photoData = this.camera.captureFrame(this.session.settings.filter);
+                const currentFilter = Utils.$('input[name="filter"]:checked').value;
+                const photoData = this.camera.captureFrame(currentFilter);
                 this.session.addPhoto(photoData);
                 this.ui.flash.classList.remove('animate');
                 this.updateProgress(this.session.getProgress());
@@ -1057,8 +1089,7 @@
                 } else {
                     const next = this.session.photos.length + 1;
                     this.setMainButton(`Take Photo ${next} of ${this.session.targetCount}`, false);
-                    this.ui.retakeButton.disabled = false;
-                    this.ui.retakeButton.style.display = 'block';
+                    this.updateUndoRedoState();
                     this.ui.mainButton.focus();
                 }
                 this.isCapturing = false;
@@ -1070,18 +1101,28 @@
                 this.ui.setupFieldset.disabled = false;
                 this.ui.downloadButton.disabled = false;
                 this.ui.shareButton.disabled = !(navigator.share && navigator.canShare);
-                this.ui.retakeButton.style.display = 'none';
+                this.updateUndoRedoState();
                 this.ui.downloadButton.focus();
             }
-            handleRetake() {
-                this.session.removeLastPhoto();
+            handleUndo() {
+                this.session.undo();
                 this.updateProgress(this.session.getProgress());
                 const next = this.session.photos.length + 1;
                 this.setMainButton(`Take Photo ${next} of ${this.session.targetCount}`, false);
-                if (this.session.photos.length === 0) {
-                    this.ui.retakeButton.style.display = 'none';
-                }
+                this.updateUndoRedoState();
                 this.ui.mainButton.focus();
+            }
+            handleRedo() {
+                this.session.redo();
+                this.updateProgress(this.session.getProgress());
+                if (this.session.isComplete()) {
+                    this.endSession();
+                } else {
+                    const next = this.session.photos.length + 1;
+                    this.setMainButton(`Take Photo ${next} of ${this.session.targetCount}`, false);
+                    this.updateUndoRedoState();
+                    this.ui.mainButton.focus();
+                }
             }
             async handleDownload() {
                 this.ui.downloadButton.disabled = true, this.ui.downloadButton.textContent = 'Preparing...';
