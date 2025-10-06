@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polaroid & Strip Photo Booth</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            touch-action: manipulation;
+        }
+        .permanent-marker {
+            font-family: 'Permanent Marker', cursive;
+        }
+        /* Filter styles for the live preview */
+        .filter-none { filter: none; }
+        .filter-grayscale { filter: grayscale(100%); }
+        .filter-sepia { filter: sepia(100%); }
+        .filter-invert { filter: invert(100%); }
+        .filter-vintage { filter: sepia(90%) contrast(150%) brightness(90%) hue-rotate(-10deg); }
+
+        /* Custom animation for shutter flash */
+        @keyframes flash {
+            0% { opacity: 1; }
+            50% { opacity: 0.9; }
+            100% { opacity: 0; }
+        }
+        .shutter-flash {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: white;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .flash-animation {
+            animation: flash 0.3s ease-out;
+        }
+        .active-btn {
+            background-color: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-4xl mx-auto">
+        <header class="text-center mb-6">
+            <h1 class="text-4xl md:text-5xl font-bold text-indigo-600 dark:text-indigo-400">Photo Booth</h1>
+            <p class="text-lg text-gray-600 dark:text-gray-400 mt-2">Capture, style, and save your moments.</p>
+        </header>
+
+        <main class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                <!-- Left Column: Camera and Controls -->
+                <div class="flex flex-col items-center">
+                    <div id="camera-container" class="w-full max-w-md aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden relative shadow-inner">
+                        <video id="video" class="w-full h-full object-cover" autoplay playsinline></video>
+                        <div id="shutter" class="shutter-flash"></div>
+                        <p id="camera-placeholder" class="absolute inset-0 flex items-center justify-center text-gray-500 dark:text-gray-400 text-center p-4">Click "Start Camera" to begin</p>
+                    </div>
+                     <!-- Hidden canvas for capturing the photo data -->
+                    <canvas id="canvas" class="hidden"></canvas>
+                    <div id="camera-controls" class="flex flex-wrap gap-3 justify-center mt-6">
+                        <button id="start-camera" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-transform transform hover:scale-105">Start Camera</button>
+                        <button id="take-photo" class="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-transform transform hover:scale-105" disabled>Take Picture</button>
+                    </div>
+                </div>
+
+                <!-- Right Column: Editor and Output -->
+                <div id="editor" class="flex flex-col hidden">
+                    <div id="output" class="w-full flex-grow flex items-center justify-center p-4 min-h-[300px] lg:min-h-0">
+                        <!-- The formatted photo will be injected here -->
+                    </div>
+
+                    <div id="style-controls" class="mt-6 space-y-6">
+                        <!-- Format Controls -->
+                        <div>
+                            <h3 class="font-bold text-lg mb-3 text-center">Format</h3>
+                            <div id="format-btns" class="flex justify-center gap-3">
+                                <button data-format="polaroid" class="format-btn active-btn px-5 py-2 border border-gray-300 dark:border-gray-600 rounded-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">Polaroid</button>
+                                <button data-format="strip" class="format-btn px-5 py-2 border border-gray-300 dark:border-gray-600 rounded-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">Strip</button>
+                            </div>
+                        </div>
+
+                        <!-- Filter Controls -->
+                        <div>
+                            <h3 class="font-bold text-lg mb-3 text-center">Filters</h3>
+                            <div id="filter-btns" class="flex flex-wrap justify-center gap-3">
+                                <button data-filter="none" class="filter-btn active-btn px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">None</button>
+                                <button data-filter="grayscale" class="filter-btn px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">Grayscale</button>
+                                <button data-filter="sepia" class="filter-btn px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">Sepia</button>
+                                <button data-filter="vintage" class="filter-btn px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">Vintage</button>
+                                <button data-filter="invert" class="filter-btn px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition">Invert</button>
+                            </div>
+                        </div>
+
+                        <div class="text-center pt-4">
+                            <button id="download-btn" class="w-full max-w-xs px-6 py-3 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-transform transform hover:scale-105">Download Photo</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const shutter = document.getElementById('shutter');
+        const cameraPlaceholder = document.getElementById('camera-placeholder');
+        
+        const startCameraBtn = document.getElementById('start-camera');
+        const takePhotoBtn = document.getElementById('take-photo');
+        const downloadBtn = document.getElementById('download-btn');
+
+        const editorPanel = document.getElementById('editor');
+        const outputContainer = document.getElementById('output');
+        const formatBtnsContainer = document.getElementById('format-btns');
+        const filterBtnsContainer = document.getElementById('filter-btns');
+        
+        let currentStream;
+        let capturedImageData = null;
+        let currentFormat = 'polaroid';
+        let currentFilter = 'none';
+
+        const filters = {
+            none: 'none',
+            grayscale: 'grayscale(100%)',
+            sepia: 'sepia(100%)',
+            invert: 'invert(100%)',
+            vintage: 'sepia(90%) contrast(150%) brightness(90%) hue-rotate(-10deg)',
+        };
+
+        // --- Camera Functions ---
+
+        startCameraBtn.addEventListener('click', async () => {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+            }
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: 'user',
+                        width: { ideal: 1080 },
+                        height: { ideal: 1080 }
+                    }, 
+                    audio: false 
+                });
+                video.srcObject = stream;
+                currentStream = stream;
+                video.style.display = 'block';
+                cameraPlaceholder.style.display = 'none';
+                takePhotoBtn.disabled = false;
+                startCameraBtn.textContent = 'Switch Camera';
+            } catch (err) {
+                console.error("Error accessing camera: ", err);
+                cameraPlaceholder.textContent = 'Could not access camera. Please check permissions.';
+                cameraPlaceholder.style.display = 'flex';
+            }
+        });
+
+        takePhotoBtn.addEventListener('click', () => {
+            // Flash effect
+            shutter.classList.add('flash-animation');
+            setTimeout(() => shutter.classList.remove('flash-animation'), 300);
+
+            const context = canvas.getContext('2d');
+            const videoWidth = video.videoWidth;
+            const videoHeight = video.videoHeight;
+            const size = Math.min(videoWidth, videoHeight);
+            
+            canvas.width = size;
+            canvas.height = size;
+            
+            // Draw centered square from video
+            const sx = (videoWidth - size) / 2;
+            const sy = (videoHeight - size) / 2;
+
+            context.drawImage(video, sx, sy, size, size, 0, 0, size, size);
+            capturedImageData = canvas.toDataURL('image/png');
+            editorPanel.classList.remove('hidden');
+            renderOutput();
+        });
+
+        // --- Styling and Rendering ---
+
+        function updateActiveButton(container, activeValue, dataAttribute) {
+            container.querySelectorAll('button').forEach(btn => {
+                if (btn.dataset[dataAttribute] === activeValue) {
+                    btn.classList.add('active-btn');
+                } else {
+                    btn.classList.remove('active-btn');
+                }
+            });
+        }
+
+        formatBtnsContainer.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                currentFormat = e.target.dataset.format;
+                updateActiveButton(formatBtnsContainer, currentFormat, 'format');
+                renderOutput();
+            }
+        });
+
+        filterBtnsContainer.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                currentFilter = e.target.dataset.filter;
+                updateActiveButton(filterBtnsContainer, currentFilter, 'filter');
+                renderOutput();
+            }
+        });
+        
+        function renderOutput() {
+            if (!capturedImageData) return;
+            outputContainer.innerHTML = ''; // Clear previous output
+
+            if (currentFormat === 'polaroid') {
+                const polaroid = document.createElement('div');
+                polaroid.className = 'bg-white p-4 pb-16 rounded-lg shadow-lg transform -rotate-3 transition-transform hover:rotate-0 hover:scale-105';
+                const img = document.createElement('img');
+                img.src = capturedImageData;
+                img.className = `w-full h-full object-cover bg-gray-200 filter-${currentFilter}`;
+                
+                const caption = document.createElement('div');
+                caption.className = 'permanent-marker absolute bottom-4 left-4 right-4 text-center text-xl text-gray-700';
+                caption.textContent = new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+                polaroid.appendChild(img);
+                polaroid.appendChild(caption);
+                outputContainer.appendChild(polaroid);
+            } else if (currentFormat === 'strip') {
+                const strip = document.createElement('div');
+                strip.className = 'bg-gray-900 p-2 grid grid-cols-1 gap-2 rounded-lg shadow-lg';
+                for (let i = 0; i < 4; i++) {
+                    const imgContainer = document.createElement('div');
+                    imgContainer.className = 'w-48 h-48 bg-gray-800'; // Fixed size for strip images
+                    const img = document.createElement('img');
+                    img.src = capturedImageData;
+                    img.className = `w-full h-full object-cover filter-${currentFilter}`;
+                    imgContainer.appendChild(img);
+                    strip.appendChild(imgContainer);
+                }
+                outputContainer.appendChild(strip);
+            }
+        }
+        
+        // --- Download Functionality ---
+
+        downloadBtn.addEventListener('click', () => {
+            if (!capturedImageData) return;
+
+            const downloadCanvas = document.createElement('canvas');
+            const ctx = downloadCanvas.getContext('2d');
+            const img = new Image();
+            
+            img.onload = () => {
+                ctx.filter = filters[currentFilter] || 'none';
+
+                if (currentFormat === 'polaroid') {
+                    const padding = 40;
+                    const captionHeight = 120;
+                    const imgSize = 800;
+                    downloadCanvas.width = imgSize + padding * 2;
+                    downloadCanvas.height = imgSize + padding + captionHeight;
+
+                    // Background
+                    ctx.fillStyle = '#f5f5f5'; // Off-white
+                    ctx.fillRect(0, 0, downloadCanvas.width, downloadCanvas.height);
+                    
+                    // Shadow
+                    ctx.shadowColor = 'rgba(0,0,0,0.2)';
+                    ctx.shadowBlur = 20;
+                    ctx.shadowOffsetX = 0;
+                    ctx.shadowOffsetY = 5;
+
+                    // Photo background
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(padding / 2, padding / 2, downloadCanvas.width - padding, downloadCanvas.height - padding);
+                    
+                    ctx.shadowColor = 'transparent'; // Reset shadow for image
+
+                    // Image
+                    ctx.drawImage(img, padding, padding, imgSize, imgSize);
+
+                    // Text
+                    ctx.filter = 'none'; // Reset filter for text
+                    ctx.fillStyle = '#333';
+                    ctx.font = `50px "Permanent Marker", cursive`;
+                    ctx.textAlign = 'center';
+                    ctx.fillText(new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }), downloadCanvas.width / 2, imgSize + padding + 70);
+
+                } else if (currentFormat === 'strip') {
+                    const imgSize = 400;
+                    const padding = 20;
+                    const numImages = 4;
+                    downloadCanvas.width = imgSize + padding * 2;
+                    downloadCanvas.height = (imgSize + padding) * numImages + padding;
+
+                    ctx.fillStyle = '#111827'; // Dark gray
+                    ctx.fillRect(0, 0, downloadCanvas.width, downloadCanvas.height);
+
+                    for (let i = 0; i < numImages; i++) {
+                        const y = padding + i * (imgSize + padding);
+                        ctx.drawImage(img, padding, y, imgSize, imgSize);
+                    }
+                }
+
+                // Trigger download
+                const link = document.createElement('a');
+                link.download = `photobooth-${currentFormat}-${Date.now()}.png`;
+                link.href = downloadCanvas.toDataURL('image/png');
+                link.click();
+            };
+            
+            img.src = capturedImageData;
+        });
+        
+        // Initial setup
+        updateActiveButton(formatBtnsContainer, currentFormat, 'format');
+        updateActiveButton(filterBtnsContainer, currentFilter, 'filter');
+    </script>
+</body>
+</html>
