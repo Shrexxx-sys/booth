@@ -1,25 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GlowBooth 2.0 - Enhanced</title>
+    <title>PhotoBooth</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Roboto:wght@400;700&display=swap"
         rel="stylesheet">
     <style>
-        /**
- * GlowBooth 2.0 - Enhanced Styles
- * Single Navy Blue Theme
- */
-
-        /* ============================================
-    CSS VARIABLES & THEMING
-    ============================================ */
         :root {
-            /* Typography */
             --font-display: 'Orbitron', sans-serif;
             --font-body: 'Roboto', sans-serif;
             --font-size-base: clamp(14px, 2vw, 16px);
@@ -27,34 +17,24 @@
             --font-size-h2: clamp(1.2rem, 3vw, 1.5rem);
             --font-size-button: clamp(1rem, 2.5vw, 1.5rem);
             --font-size-countdown: clamp(4rem, 15vw, 8rem);
-
-            /* Spacing */
             --spacing-xs: clamp(5px, 1vw, 10px);
             --spacing-sm: clamp(10px, 2vw, 15px);
             --spacing-md: clamp(15px, 3vw, 20px);
             --spacing-lg: clamp(20px, 4vw, 30px);
             --spacing-xl: clamp(30px, 5vw, 40px);
-
-            /* Border Radius */
             --border-radius-sm: 5px;
             --border-radius-md: 10px;
             --border-radius-lg: 15px;
             --border-radius-full: 50px;
-
-            /* Transitions */
             --transition-fast: 0.15s ease;
             --transition-normal: 0.3s ease;
             --transition-slow: 0.5s ease;
-
-            /* Layout */
             --container-max-width: 1400px;
             --camera-aspect-ratio: 16 / 9;
-
-            /* Polaroid */
             --polaroid-padding: clamp(10px, 2vw, 25px);
             --polaroid-bottom: clamp(40px, 8vw, 100px);
-
-            /* Cool Navy Blue Theme */
+        }
+        body.navy-mode {
             --bg-color: #0a192f;
             --surface-color: #112240;
             --surface-elevated: #1d345a;
@@ -67,21 +47,28 @@
             --shadow-subtle: rgba(2, 12, 27, 0.7);
             --overlay-bg: rgba(10, 25, 47, 0.85);
         }
-
-        /* ============================================
-    RESET & BASE STYLES
-    ============================================ */
+        body.light-mode {
+            --bg-color: #f4f4f9;
+            --surface-color: #ffffff;
+            --surface-elevated: #fdfdfd;
+            --primary-color: #005f73;
+            --glow-color: #0a9396;
+            --text-color: #333333;
+            --text-secondary: #555555;
+            --border-color: #dddddd;
+            --shadow-color: rgba(0, 95, 115, 0.2);
+            --shadow-subtle: rgba(0, 0, 0, 0.1);
+            --overlay-bg: rgba(255, 255, 255, 0.9);
+        }
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
-
         html {
             scroll-behavior: smooth;
             font-size: var(--font-size-base);
         }
-
         body {
             font-family: var(--font-body);
             background-color: var(--bg-color);
@@ -94,8 +81,6 @@
             transition: background-color var(--transition-normal), color var(--transition-normal);
             line-height: 1.6;
         }
-
-        /* Screen Reader Only */
         .sr-only {
             position: absolute;
             width: 1px;
@@ -107,10 +92,6 @@
             white-space: nowrap;
             border-width: 0;
         }
-
-        /* ============================================
-    MAIN CONTAINER
-    ============================================ */
         .photobooth-container {
             width: 100%;
             max-width: var(--container-max-width);
@@ -120,20 +101,14 @@
             border: 1px solid var(--border-color);
             overflow: hidden;
         }
-
-        /* ============================================
-    HEADER
-    ============================================ */
         header {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
             padding: var(--spacing-md) var(--spacing-lg);
             background-color: var(--surface-elevated);
             border-bottom: 1px solid var(--border-color);
-            text-align: center;
         }
-
         header h1 {
             font-family: var(--font-display);
             font-size: var(--font-size-h1);
@@ -141,23 +116,68 @@
             text-shadow: 0 0 10px var(--glow-color);
             margin: 0;
         }
-
-        /* ============================================
-    MAIN CONTENT LAYOUT
-    ============================================ */
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+        .theme-icon {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+        }
+        .theme-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--surface-elevated);
+            border: 2px solid var(--border-color);
+            transition: var(--transition-normal);
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 2px;
+            background-color: var(--text-secondary);
+            transition: var(--transition-normal);
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+             background-color: var(--primary-color);
+             border-color: var(--primary-color);
+        }
+        input:checked + .slider:before {
+            transform: translateX(28px);
+            background-color: var(--bg-color);
+        }
         .main-content {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
             gap: var(--spacing-lg);
             padding: var(--spacing-lg);
         }
-
         @media (min-width: 1024px) {
             .main-content {
                 grid-template-columns: 1fr 1.5fr 1fr;
             }
         }
-
         .setup-section,
         .booth-section,
         .output-section {
@@ -167,7 +187,6 @@
             padding: var(--spacing-lg);
             box-shadow: 0 2px 8px var(--shadow-subtle);
         }
-
         h2 {
             font-family: var(--font-display);
             font-size: var(--font-size-h2);
@@ -175,33 +194,25 @@
             color: var(--primary-color);
             text-shadow: 0 0 5px var(--glow-color);
         }
-
-        /* ============================================
-    CONTROL GROUPS & OPTIONS
-    ============================================ */
         .control-group {
             margin-bottom: var(--spacing-lg);
         }
-
         .control-group>label {
             display: block;
             margin-bottom: var(--spacing-sm);
             font-weight: bold;
             color: var(--text-color);
         }
-
         .options {
             display: flex;
             flex-wrap: wrap;
             gap: var(--spacing-sm);
         }
-
         .options input[type="radio"] {
             position: absolute;
             opacity: 0;
             pointer-events: none;
         }
-
         .options label {
             padding: var(--spacing-sm) var(--spacing-md);
             border: 2px solid var(--border-color);
@@ -214,19 +225,12 @@
             user-select: none;
             position: relative;
         }
-
         .options label:hover {
             border-color: var(--primary-color);
             color: var(--primary-color);
             transform: translateY(-2px);
             box-shadow: 0 4px 8px var(--shadow-subtle);
         }
-
-        .options label:focus {
-            outline: 2px solid var(--primary-color);
-            outline-offset: 2px;
-        }
-
         .options input[type="radio"]:checked+label {
             background-color: var(--primary-color);
             color: var(--bg-color);
@@ -234,58 +238,50 @@
             box-shadow: 0 0 15px var(--shadow-color);
             font-weight: bold;
         }
-
         .options input[type="radio"]:checked+label::before {
             content: "✓ ";
             margin-right: 4px;
         }
-
         fieldset {
             border: none;
             padding: 0;
             margin: 0;
         }
-
         fieldset:disabled {
             opacity: 0.6;
             pointer-events: none;
         }
-
         fieldset:disabled .options label {
             cursor: not-allowed;
         }
-
-        /* ============================================
-    CAMERA VIEW
-    ============================================ */
         .camera-view {
             position: relative;
             width: 100%;
-            aspect-ratio: var(--camera-aspect-ratio);
             background-color: #000;
             border-radius: var(--border-radius-md);
             overflow: hidden;
             margin-bottom: var(--spacing-md);
             border: 3px solid var(--border-color);
             box-shadow: 0 4px 10px var(--shadow-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
-
+        .camera-view::before {
+            content: '';
+            display: block;
+            padding-top: calc(100% / (var(--camera-aspect-ratio)));
+        }
         #video {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
             transform: scaleX(-1);
             transition: filter var(--transition-normal);
         }
-
         #canvas {
             display: none;
         }
-
-        /* Camera Overlays */
         .camera-overlay {
             position: absolute;
             top: 0;
@@ -297,28 +293,23 @@
             align-items: center;
             justify-content: center;
         }
-
         .flash {
             background-color: white;
             opacity: 0;
         }
-
         .flash.animate {
             animation: flash-animation 0.5s ease-out;
         }
-
         @keyframes flash-animation {
             0% {
                 opacity: 0.9;
                 transform: scale(1.05);
             }
-
             100% {
                 opacity: 0;
                 transform: scale(1);
             }
         }
-
         .countdown {
             font-family: var(--font-display);
             font-weight: 700;
@@ -329,43 +320,42 @@
             opacity: 0;
             transform: scale(0.5);
         }
-
         .countdown.show {
             animation: countdown-pulse 1s forwards;
         }
-
         @keyframes countdown-pulse {
             0% {
                 opacity: 0;
                 transform: scale(0.5);
             }
-
             50% {
                 opacity: 1;
                 transform: scale(1.2);
             }
-
             100% {
                 opacity: 0;
                 transform: scale(1);
             }
         }
-
         .camera-error {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             text-align: center;
             padding: var(--spacing-lg);
             font-size: 1.1rem;
             color: var(--text-secondary);
         }
-
         .camera-error p:first-child {
             font-size: 3rem;
             margin-bottom: var(--spacing-sm);
         }
-
-        /* ============================================
-    PROGRESS BAR
-    ============================================ */
         .progress-bar {
             width: 100%;
             background-color: var(--border-color);
@@ -375,7 +365,6 @@
             overflow: hidden;
             box-shadow: inset 0 2px 4px var(--shadow-subtle);
         }
-
         #progress-indicator {
             width: 0%;
             height: 100%;
@@ -384,10 +373,6 @@
             border-radius: var(--border-radius-sm);
             box-shadow: 0 0 10px var(--glow-color);
         }
-
-        /* ============================================
-    BUTTONS
-    ============================================ */
         .action-button {
             width: 100%;
             font-family: var(--font-display);
@@ -405,23 +390,18 @@
             position: relative;
             overflow: hidden;
         }
-
+        body.light-mode .action-button {
+            color: var(--surface-color);
+        }
         .action-button:hover:not(:disabled) {
             background-color: transparent;
             color: var(--primary-color);
             transform: translateY(-3px);
             box-shadow: 0 6px 20px var(--shadow-color);
         }
-
         .action-button:active:not(:disabled) {
             transform: translateY(-1px);
         }
-
-        .action-button:focus {
-            outline: 3px solid var(--primary-color);
-            outline-offset: 3px;
-        }
-
         .action-button:disabled {
             background: var(--border-color);
             border-color: var(--border-color);
@@ -430,22 +410,16 @@
             box-shadow: none;
             transform: none;
         }
-
         .button-group {
             display: flex;
             flex-wrap: wrap;
             gap: var(--spacing-sm);
             margin-top: var(--spacing-md);
         }
-
         .button-group .action-button {
             flex: 1;
             min-width: 120px;
         }
-
-        /* ============================================
-    OUTPUT SECTION
-    ============================================ */
         #final-output {
             width: 100%;
             padding: var(--spacing-lg);
@@ -459,33 +433,27 @@
             background-color: var(--surface-color);
             transition: border-color var(--transition-normal);
         }
-
-        #final-output:has(.output-container) {
+        #final-output.has-content {
             border-style: solid;
             border-color: var(--primary-color);
         }
-
         #final-output>p {
             color: var(--text-secondary);
             font-style: italic;
         }
-
         .output-container {
             display: grid;
             gap: var(--spacing-md);
             width: 100%;
         }
-
         .output-container.grid {
             grid-template-columns: repeat(auto-fit, minmax(clamp(120px, 30vw, 200px), 1fr));
         }
-
         .output-container.strip {
             grid-template-columns: 1fr;
             max-width: min(400px, 100%);
             margin: 0 auto;
         }
-
         .photo-wrapper {
             background-color: black;
             border-radius: var(--border-radius-sm);
@@ -494,11 +462,9 @@
             transition: transform var(--transition-fast);
             position: relative;
         }
-
         .photo-wrapper:hover {
             transform: scale(1.05) rotate(1deg);
         }
-
         .photo-wrapper.polaroid {
             background-color: #fff;
             padding: var(--polaroid-padding);
@@ -508,145 +474,122 @@
             border: 1px solid #ddd;
             transform: rotate(calc(var(--rotation, 0) * 1deg));
         }
-
         .photo-wrapper.polaroid:hover {
             transform: scale(1.05) rotate(calc(var(--rotation, 0) * 1deg + 2deg));
         }
-
         .photo-wrapper img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             display: block;
         }
-
-        /* ============================================
-    RESPONSIVE DESIGN
-    ============================================ */
         @media (max-width: 1023px) {
             .main-content {
                 grid-template-columns: 1fr;
             }
         }
-
         @media (max-width: 767px) {
             header {
                 flex-direction: column;
                 gap: var(--spacing-sm);
                 text-align: center;
             }
-
             .camera-view {
                 aspect-ratio: 4 / 3;
+                --camera-aspect-ratio: 4 / 3;
             }
-
             .button-group {
                 flex-direction: column;
             }
-
             .button-group .action-button {
                 width: 100%;
             }
         }
-
         @media (max-width: 480px) {
             body {
                 padding: var(--spacing-xs);
             }
-
             .photobooth-container {
                 border-radius: var(--border-radius-md);
             }
-
             .main-content {
                 padding: var(--spacing-sm);
                 gap: var(--spacing-md);
             }
-
             .setup-section,
             .booth-section,
             .output-section {
                 padding: var(--spacing-md);
             }
         }
-
-        /* ============================================
-    PRINT STYLES
-    ============================================ */
         @media print {
             body {
                 background: white;
             }
-
             .photobooth-container {
                 box-shadow: none;
                 border: none;
             }
-
             header,
             .setup-section,
             .booth-section,
             .button-group {
                 display: none;
             }
-
             .output-section {
                 border: none;
                 box-shadow: none;
             }
-
             #final-output {
                 border: none;
                 min-height: auto;
             }
         }
-
-        /* ============================================
-    ACCESSIBILITY ENHANCEMENTS
-    ============================================ */
         @media (prefers-reduced-motion: reduce) {
-
             *,
             *::before,
             *::after {
                 animation-duration: 0.01ms !important;
                 animation-iteration-count: 1 !important;
                 transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+            .flash.animate, .countdown.show {
+                animation: none;
+                opacity: 0;
             }
         }
-
-        /* High contrast mode support */
         @media (prefers-contrast: high) {
-            .action-button {
-                border: 2px solid currentColor;
-            }
-
-            .options label {
-                border-width: 3px;
+            .action-button, .options label {
+                border: 3px solid currentColor;
             }
         }
-
-        /* Focus visible for keyboard navigation */
         :focus-visible {
             outline: 3px solid var(--primary-color);
-            outline-offset: 2px;
+            outline-offset: 3px;
+            border-radius: var(--border-radius-sm);
         }
     </style>
 </head>
-
-<body>
+<body class="navy-mode">
     <div class="photobooth-container">
         <header>
-            <h1>GlowBooth 2.0</h1>
+            <h1>PhotoBooth</h1>
+            <div class="theme-switch-wrapper">
+                <span class="theme-icon" aria-hidden="true">☀️</span>
+                <label class="theme-switch" for="theme-toggle">
+                    <span class="sr-only">Toggle Color Theme</span>
+                    <input type="checkbox" id="theme-toggle" aria-label="Theme toggle">
+                    <span class="slider" role="presentation"></span>
+                </label>
+                <span class="theme-icon" aria-hidden="true">🌙</span>
+            </div>
         </header>
-
         <main class="main-content">
-            <!-- Setup Section -->
             <section class="setup-section" aria-labelledby="setup-heading">
                 <h2 id="setup-heading">1. Setup</h2>
                 <fieldset id="setup-fieldset">
                     <legend class="sr-only">Photo session configuration</legend>
-
                     <div class="control-group">
                         <label id="photo-count-label">Photos per Session:</label>
                         <div class="options" role="radiogroup" aria-labelledby="photo-count-label">
@@ -655,19 +598,16 @@
                                 <span class="option-text">1</span>
                                 <span class="sr-only">photo</span>
                             </label>
-
                             <input type="radio" id="count2" name="photo-count" value="2">
                             <label for="count2" tabindex="0">
                                 <span class="option-text">2</span>
                                 <span class="sr-only">photos</span>
                             </label>
-
                             <input type="radio" id="count3" name="photo-count" value="3">
                             <label for="count3" tabindex="0">
                                 <span class="option-text">3</span>
                                 <span class="sr-only">photos</span>
                             </label>
-
                             <input type="radio" id="count4" name="photo-count" value="4" checked>
                             <label for="count4" tabindex="0">
                                 <span class="option-text">4</span>
@@ -675,7 +615,6 @@
                             </label>
                         </div>
                     </div>
-
                     <div class="control-group">
                         <label id="layout-label">Layout Style:</label>
                         <div class="options" role="radiogroup" aria-labelledby="layout-label">
@@ -683,14 +622,12 @@
                             <label for="layout-grid" tabindex="0">
                                 <span class="option-text">Grid</span>
                             </label>
-
                             <input type="radio" id="layout-strip" name="layout" value="strip">
                             <label for="layout-strip" tabindex="0">
                                 <span class="option-text">Strip</span>
                             </label>
                         </div>
                     </div>
-
                     <div class="control-group">
                         <label id="effect-label">Photo Effect:</label>
                         <div class="options" role="radiogroup" aria-labelledby="effect-label">
@@ -698,14 +635,12 @@
                             <label for="effect-none" tabindex="0">
                                 <span class="option-text">Standard</span>
                             </label>
-
                             <input type="radio" id="effect-polaroid" name="effect" value="polaroid">
                             <label for="effect-polaroid" tabindex="0">
                                 <span class="option-text">Polaroid</span>
                             </label>
                         </div>
                     </div>
-
                     <div class="control-group">
                         <label id="filter-label">Live Filter (Preview):</label>
                         <div class="options" role="radiogroup" aria-labelledby="filter-label">
@@ -713,17 +648,14 @@
                             <label for="filter-none" tabindex="0">
                                 <span class="option-text">None</span>
                             </label>
-
                             <input type="radio" id="filter-sepia" name="filter" value="sepia(1)">
                             <label for="filter-sepia" tabindex="0">
                                 <span class="option-text">Sepia</span>
                             </label>
-
                             <input type="radio" id="filter-bw" name="filter" value="grayscale(1)">
                             <label for="filter-bw" tabindex="0">
                                 <span class="option-text">B&W</span>
                             </label>
-
                             <input type="radio" id="filter-vibrant" name="filter" value="saturate(2) contrast(1.2)">
                             <label for="filter-vibrant" tabindex="0">
                                 <span class="option-text">Vibrant</span>
@@ -732,8 +664,6 @@
                     </div>
                 </fieldset>
             </section>
-
-            <!-- Camera Booth Section -->
             <section class="booth-section" aria-labelledby="booth-heading">
                 <h2 id="booth-heading">2. Capture</h2>
                 <div class="camera-view" role="region" aria-label="Camera preview">
@@ -747,18 +677,14 @@
                         <p>Click "Start Camera" to begin.</p>
                     </div>
                 </div>
-
                 <button id="main-action-btn" class="action-button" aria-label="Start Camera">
                     Start Camera
                 </button>
-
                 <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
                     aria-label="Session progress">
                     <div id="progress-indicator"></div>
                 </div>
             </section>
-
-            <!-- Output Section -->
             <section class="output-section" aria-labelledby="output-heading">
                 <h2 id="output-heading">3. Result</h2>
                 <div id="final-output" aria-live="polite" role="region" aria-label="Final photo output">
@@ -771,28 +697,18 @@
                     <button id="share-btn" class="action-button" disabled aria-label="Share final image">
                         Share
                     </button>
-                    <button id="retake-btn" class="action-button" disabled aria-label="Retake last photo"
+                    <button id="retake-btn" class="action-button" disabled aria-label="Undo last photo"
                         style="display: none;">
-                        Retake Last
+                        Undo Last Photo
                     </button>
                 </div>
             </section>
         </main>
     </div>
-
     <audio id="shutter-sound"
         src="data:audio/mpeg;base64,UklGRigBAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAAABkYXRhJAEAAAD//wD/APMA9QD1APMA8gDyAPMA8gDzAPMA9ADzAPMA8wDzAO8A8ADuAO4A7gDtAOwA7QDqAOsA6ADpAOYA5QDMAa4BigGMAbABsQGvAbQBswG3AbgBuwG9AcABwAHCAcMBxAHIAcsBzQHPAdEB0wHYAdwB4AHjAfEB8gH0AfkB/gIAAgQDCAQaBDwETAR8BIgElATsBSAFOAVcBYgFqAXMBdQF6AX8BhQGMAZABlwGgAaUBqwGvAbYBvAHAAccBzQHTAdgB3wHlAfYCAwIGAhQCHQImAi8CSQJOAl8CbQJ/AocCkAKbAqECqQKyArsCwwLFAs8C1wLeAvUC/wMMgxCDFIMcgyQDJ4MyAzqDP4NAg0qDWoNjg2wDdIN9g4yDmYOlg6yDsoO+g8WDywPaA+ED5wPzA/sEBAQcBGQEcAR4BIIEjASyBNoE+gUGBSEFKwVCBVoFYAWMBbUFzAXfBesGAQYUBiEGNQZNBlUGYwZ5BoMGmAavBr0GywbqBv0HFAchBywHQAdQB1sHcwfIB/8IPAjBCLoI4wj3CSQJLQlDCVwJaQlxCYkJkQmoCb8JygnbCfQKAwoMCi0KRgpVCmIKaAqBCqMKwArlCvwLJQszDEEMVwx4DIkMrQzcDOcM/A0EDRQNKA1HDV0Ngg2VDbcN7A4ADiAORw5aDogOzA7jDwwPNg9GD18Pag9/D5cPrw/JD+8QBhATEB8QKhA0EDoQPhBFEE4QWxBcEGIQahBwEHcQhxCUEJkQoBClEKwQthC+EMcQ0BDhEO0RChEeESoRTBFaEWwRjBGeEagRyBHUEewSBhIaEiYSUhJuEn4SihKaEsYS3hMIDQ=="
         preload="auto"></audio>
-
     <script>
-        /**
- * GlowBooth 2.0 - Rewritten & Refined Application
- * Modular, robust, and commented for clarity.
- */
-
-        // ============================================
-        // CONFIGURATION & UTILITIES
-        // ============================================
         const CONFIG = {
             COUNTDOWN_SECONDS: 3,
             PHOTO_WIDTH: 700,
@@ -801,7 +717,6 @@
             MAX_CANVAS_SIZE: 4096,
             JPEG_QUALITY: 0.98,
         };
-
         const Utils = {
             $(selector, parent = document) {
                 const element = parent.querySelector(selector);
@@ -834,10 +749,6 @@
             },
             getRandomRotation: () => (Math.random() - 0.5) * 6,
         };
-
-        // ============================================
-        // CAMERA MODULE
-        // ============================================
         class Camera {
             constructor() {
                 this.video = Utils.$('#video');
@@ -845,7 +756,6 @@
                 this.errorElement = Utils.$('#camera-error');
                 this.stream = null;
             }
-
             async initialize() {
                 try {
                     if (this.stream) this.stop();
@@ -864,38 +774,28 @@
                 } catch (error) {
                     console.error('Camera initialization error:', error);
                     this.errorElement.innerHTML = `<p>🎥</p><p>Could not access webcam. Please check permissions and refresh.</p>`;
-                    this.errorElement.style.display = 'block';
+                    this.errorElement.style.display = 'flex';
                     this.video.style.display = 'none';
                     return false;
                 }
             }
-
             stop() {
                 if (this.stream) {
                     this.stream.getTracks().forEach(track => track.stop());
                     this.stream = null;
                 }
             }
-
             applyFilter(filter) {
                 this.video.style.filter = filter;
             }
-
             captureFrame(filter) {
                 const context = this.canvas.getContext('2d', { alpha: false });
-                
                 const video = this.video;
                 const videoWidth = video.videoWidth;
                 const videoHeight = video.videoHeight;
-                
                 const previewRatio = video.clientWidth / video.clientHeight;
                 const videoRatio = videoWidth / videoHeight;
-
-                let sWidth = videoWidth;
-                let sHeight = videoHeight;
-                let sx = 0;
-                let sy = 0;
-
+                let sWidth = videoWidth, sHeight = videoHeight, sx = 0, sy = 0;
                 if (videoRatio > previewRatio) {
                     sWidth = videoHeight * previewRatio;
                     sx = (videoWidth - sWidth) / 2;
@@ -903,24 +803,15 @@
                     sHeight = videoWidth / previewRatio;
                     sy = (videoHeight - sHeight) / 2;
                 }
-
                 this.canvas.width = sWidth;
                 this.canvas.height = sHeight;
-                
                 context.translate(this.canvas.width, 0);
                 context.scale(-1, 1);
-                
                 context.filter = filter;
-                
                 context.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, sWidth, sHeight);
-                
                 return this.canvas.toDataURL('image/jpeg', CONFIG.JPEG_QUALITY);
             }
         }
-
-        // ============================================
-        // SESSION MANAGER MODULE
-        // ============================================
         class SessionManager {
             constructor() {
                 this.reset();
@@ -930,18 +821,10 @@
                 this.settings = { ...settings };
                 this.targetCount = settings.photoCount;
             }
-            addPhoto(dataUrl) {
-                this.photos.push(dataUrl);
-            }
-            removeLastPhoto() {
-                if (this.photos.length > 0) this.photos.pop();
-            }
-            isComplete() {
-                return this.photos.length >= this.targetCount;
-            }
-            getProgress() {
-                return (this.photos.length / this.targetCount) * 100;
-            }
+            addPhoto(dataUrl) { this.photos.push(dataUrl); }
+            removeLastPhoto() { if (this.photos.length > 0) this.photos.pop(); }
+            isComplete() { return this.photos.length >= this.targetCount; }
+            getProgress() { return (this.photos.length / this.targetCount) * 100; }
             reset() {
                 this.isActive = false;
                 this.photos = [];
@@ -949,27 +832,29 @@
                 this.settings = {};
             }
         }
-
-        // ============================================
-        // UI & EFFECTS MODULES
-        // ============================================
         class Countdown {
             constructor(element) {
                 this.element = element;
                 this.isRunning = false;
+                this.prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
             }
             async run(seconds) {
                 this.isRunning = true;
                 for (let i = seconds; i > 0; i--) {
                     if (!this.isRunning) break;
                     this.element.textContent = i;
-                    this.element.classList.add('show');
                     this.element.setAttribute('aria-label', `${i}`);
-                    await Utils.delay(800);
-                    this.element.classList.remove('show');
-                    await Utils.delay(200);
+                    if (!this.prefersReducedMotion) {
+                        this.element.classList.add('show');
+                        await Utils.delay(800);
+                        this.element.classList.remove('show');
+                        await Utils.delay(200);
+                    } else {
+                         await Utils.delay(1000);
+                    }
                 }
                 this.isRunning = false;
+                this.element.textContent = '';
             }
             cancel() {
                 this.isRunning = false;
@@ -977,16 +862,17 @@
                 this.element.textContent = '';
             }
         }
-
         class Renderer {
             constructor(outputElement) {
                 this.outputElement = outputElement;
             }
             clear() {
                 this.outputElement.innerHTML = '<p>Your photo creation will appear here!</p>';
+                this.outputElement.classList.remove('has-content');
             }
             render(photos, settings) {
                 this.outputElement.innerHTML = '';
+                this.outputElement.classList.add('has-content');
                 const container = document.createElement('div');
                 container.className = `output-container ${settings.layout}`;
                 photos.forEach((photoSrc, i) => {
@@ -1005,15 +891,8 @@
                 this.outputElement.appendChild(container);
             }
         }
-
-        // ============================================
-        // DOWNLOAD & SHARE MODULE
-        // ============================================
         class DownloadManager {
-            constructor(session) {
-                this.session = session;
-            }
-
+            constructor(session) { this.session = session; }
             async generate() {
                 const { photos, settings } = this.session;
                 const images = await Promise.all(photos.map(src => Utils.loadImage(src)));
@@ -1023,86 +902,81 @@
                 const itemW = CONFIG.PHOTO_WIDTH + (pPad * 2);
                 const itemH = CONFIG.PHOTO_HEIGHT + pPad * 2 + pBottom;
                 const dims = Utils.calculateCanvasDimensions(images.length, settings.layout, itemW, itemH, CONFIG.DOWNLOAD_PADDING);
-                
                 const canvas = document.createElement('canvas');
                 canvas.width = dims.width;
                 canvas.height = dims.height;
                 const ctx = canvas.getContext('2d', { alpha: false });
-
-                ctx.fillStyle = '#0a192f'; // Use new background color
+                ctx.fillStyle = document.body.classList.contains('navy-mode') ? '#0a192f' : '#f4f4f9';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-
                 const sPad = CONFIG.DOWNLOAD_PADDING * dims.scale;
-                const sItemW = itemW * dims.scale;
-                const sItemH = itemH * dims.scale;
-                const sPhotoW = CONFIG.PHOTO_WIDTH * dims.scale;
-                const sPhotoH = CONFIG.PHOTO_HEIGHT * dims.scale;
+                const sItemW = itemW * dims.scale, sItemH = itemH * dims.scale;
+                const sPhotoW = CONFIG.PHOTO_WIDTH * dims.scale, sPhotoH = CONFIG.PHOTO_HEIGHT * dims.scale;
                 const sPpad = pPad * dims.scale;
-
                 for (let i = 0; i < images.length; i++) {
                     const row = settings.layout === 'grid' ? Math.floor(i / dims.cols) : i;
                     const col = settings.layout === 'grid' ? i % dims.cols : 0;
-                    const x = (col * sItemW) + ((col + 1) * sPad);
-                    const y = (row * sItemH) + ((row + 1) * sPad);
-                    
+                    const x = (col * sItemW) + ((col + 1) * sPad), y = (row * sItemH) + ((row + 1) * sPad);
                     ctx.save();
                     if (isPolaroid) {
-                        ctx.fillStyle = '#FFFFFF';
-                        ctx.shadowColor = 'rgba(0,0,0,0.3)';
-                        ctx.shadowBlur = 20 * dims.scale;
-                        ctx.shadowOffsetX = 2 * dims.scale;
-                        ctx.shadowOffsetY = 2 * dims.scale;
+                        ctx.fillStyle = '#FFFFFF', ctx.shadowColor = 'rgba(0,0,0,0.3)';
+                        ctx.shadowBlur = 20 * dims.scale, ctx.shadowOffsetX = 2 * dims.scale, ctx.shadowOffsetY = 2 * dims.scale;
                         ctx.fillRect(x, y, sItemW, sItemH);
                         ctx.shadowColor = 'transparent';
                     }
                     ctx.drawImage(images[i], isPolaroid ? x + sPpad : x, isPolaroid ? y + sPpad : y, sPhotoW, sPhotoH);
                     ctx.restore();
+                    if (i % 2 === 0) await Utils.delay(0);
                 }
                 return new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', CONFIG.JPEG_QUALITY));
             }
-
             async download() {
                 const blob = await this.generate();
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
-                link.href = url;
-                link.download = `GlowBooth_${Date.now()}.jpg`;
+                link.href = url, link.download = `PhotoBooth_${Date.now()}.jpg`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
                 URL.revokeObjectURL(url);
             }
-
             async share() {
                 const blob = await this.generate();
-                const file = new File([blob], 'glowbooth.jpg', { type: 'image/jpeg' });
+                const file = new File([blob], 'photobooth.jpg', { type: 'image/jpeg' });
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     try {
-                        await navigator.share({
-                            files: [file],
-                            title: 'My GlowBooth Creation!',
-                            text: 'Check out this photo I took with GlowBooth 2.0!',
-                        });
+                        await navigator.share({ files: [file], title: 'My PhotoBooth Creation!', text: 'Check out this photo I took with PhotoBooth!' });
                     } catch (error) {
                         if (error.name !== 'AbortError') {
                             console.error('Share failed:', error);
                             await this.download();
                         }
                     }
-                } else {
-                    await this.download();
-                }
+                } else { await this.download(); }
             }
         }
-        
-        // ============================================
-        // KEYBOARD NAVIGATION
-        // ============================================
-        class KeyboardNavigation {
-             constructor() {
-                this.init();
+        class ThemeManager {
+            constructor(toggle) {
+                this.toggle = toggle;
+                const savedTheme = localStorage.getItem('photobooth-theme');
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (savedTheme) {
+                    this.setTheme(savedTheme);
+                } else {
+                    this.setTheme(prefersDark ? 'navy' : 'light');
+                }
             }
-
+            setTheme(theme) {
+                document.body.className = theme === 'navy' ? 'navy-mode' : 'light-mode';
+                this.toggle.checked = theme === 'navy';
+                localStorage.setItem('photobooth-theme', theme);
+            }
+            toggleTheme() {
+                const newTheme = document.body.classList.contains('navy-mode') ? 'light' : 'navy';
+                this.setTheme(newTheme);
+            }
+        }
+        class KeyboardNavigation {
+             constructor() { this.init(); }
             init() {
                 Utils.$$('.options label').forEach(label => {
                     label.addEventListener('keydown', (e) => {
@@ -1116,20 +990,19 @@
                         }
                     });
                 });
-
                 Utils.$$('.options').forEach(group => {
                     const labels = Utils.$$('label', group);
                     labels.forEach((label, index) => {
                         label.addEventListener('keydown', (e) => {
                             let nextIndex = -1;
-                            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-                                e.preventDefault();
+                            const isRTL = document.dir === 'rtl';
+                            if ((!isRTL && (e.key === 'ArrowRight' || e.key === 'ArrowDown')) || (isRTL && (e.key === 'ArrowLeft' || e.key === 'ArrowUp'))) {
                                 nextIndex = (index + 1) % labels.length;
-                            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-                                e.preventDefault();
+                            } else if ((!isRTL && (e.key === 'ArrowLeft' || e.key === 'ArrowUp')) || (isRTL && (e.key === 'ArrowRight' || e.key === 'ArrowDown'))) {
                                 nextIndex = (index - 1 + labels.length) % labels.length;
                             }
                             if (nextIndex !== -1) {
+                                e.preventDefault();
                                 labels[nextIndex].focus();
                             }
                         });
@@ -1137,11 +1010,7 @@
                 });
             }
         }
-
-        // ============================================
-        // MAIN APPLICATION ORCHESTRATOR
-        // ============================================
-        class GlowBoothApp {
+        class PhotoBoothApp {
             constructor() {
                 this.camera = new Camera();
                 this.session = new SessionManager();
@@ -1149,7 +1018,6 @@
                 this.renderer = new Renderer(Utils.$('#final-output'));
                 this.downloadManager = new DownloadManager(this.session);
                 this.keyboardNav = new KeyboardNavigation();
-
                 this.ui = {
                     mainButton: Utils.$('#main-action-btn'),
                     downloadButton: Utils.$('#download-btn'),
@@ -1160,17 +1028,16 @@
                     progressBar: Utils.$('.progress-bar'),
                     flash: Utils.$('#flash'),
                     shutterSound: Utils.$('#shutter-sound'),
+                    themeToggle: Utils.$('#theme-toggle'),
                 };
-                
+                this.themeManager = new ThemeManager(this.ui.themeToggle);
                 this.isCapturing = false;
                 this.isCameraReady = false;
             }
-
             init() {
                 this.registerEventListeners();
-                console.log('GlowBooth 2.0 Rewritten Initialized');
+                console.log('PhotoBooth Initialized');
             }
-
             registerEventListeners() {
                 this.ui.mainButton.addEventListener('click', () => this.handleMainAction());
                 this.ui.downloadButton.addEventListener('click', () => this.handleDownload());
@@ -1179,38 +1046,28 @@
                 this.ui.setupFieldset.addEventListener('change', e => {
                     if (e.target.name === 'filter') this.camera.applyFilter(e.target.value);
                 });
+                this.ui.themeToggle.addEventListener('change', () => this.themeManager.toggleTheme());
             }
-
-            // --- UI Update Methods ---
             setMainButton(text, disabled, ariaLabel = text) {
                 this.ui.mainButton.textContent = text;
                 this.ui.mainButton.disabled = disabled;
                 this.ui.mainButton.setAttribute('aria-label', ariaLabel);
             }
-            
             updateProgress(percentage) {
                 this.ui.progressIndicator.style.width = `${percentage}%`;
                 this.ui.progressBar.setAttribute('aria-valuenow', Math.round(percentage));
             }
-
-            // --- Core Application Flow ---
             async handleMainAction() {
                 if (this.isCapturing) return;
-
                 if (!this.isCameraReady) {
                     this.setMainButton("Starting...", true, "Starting Camera");
                     this.isCameraReady = await this.camera.initialize();
                     this.setMainButton(this.isCameraReady ? "Start Session" : "Camera Error", !this.isCameraReady);
+                    if (this.isCameraReady) this.ui.mainButton.focus();
                     return;
                 }
-
-                if (this.session.isActive) {
-                    await this.capturePhoto();
-                } else {
-                    this.startSession();
-                }
+                this.session.isActive ? await this.capturePhoto() : this.startSession();
             }
-
             startSession() {
                 const settings = {
                     photoCount: parseInt(Utils.$('input[name="photo-count"]:checked').value),
@@ -1219,7 +1076,6 @@
                     filter: Utils.$('input[name="filter"]:checked').value,
                 };
                 this.session.start(settings);
-
                 this.ui.setupFieldset.disabled = true;
                 this.ui.downloadButton.disabled = true;
                 this.ui.shareButton.disabled = true;
@@ -1227,27 +1083,20 @@
                 this.renderer.clear();
                 this.updateProgress(0);
                 this.camera.applyFilter(settings.filter);
-
                 this.capturePhoto();
             }
-
             async capturePhoto() {
                 if (this.isCapturing) return;
                 this.isCapturing = true;
                 this.setMainButton('Get Ready...', true);
                 this.ui.retakeButton.disabled = true;
-
                 await this.countdown.run(CONFIG.COUNTDOWN_SECONDS);
-                
                 this.ui.flash.classList.add('animate');
                 this.ui.shutterSound.play().catch(e => console.warn("Sound blocked by browser"));
-                
                 const photoData = this.camera.captureFrame(this.session.settings.filter);
                 this.session.addPhoto(photoData);
-
                 this.ui.flash.classList.remove('animate');
                 this.updateProgress(this.session.getProgress());
-
                 if (this.session.isComplete()) {
                     await this.endSession();
                 } else {
@@ -1255,21 +1104,20 @@
                     this.setMainButton(`Take Photo ${next} of ${this.session.targetCount}`, false);
                     this.ui.retakeButton.disabled = false;
                     this.ui.retakeButton.style.display = 'block';
+                    this.ui.mainButton.focus();
                 }
                 this.isCapturing = false;
             }
-
             async endSession() {
                 this.session.isActive = false;
                 await this.renderer.render(this.session.photos, this.session.settings);
-                
                 this.setMainButton('Start New Session', false);
                 this.ui.setupFieldset.disabled = false;
                 this.ui.downloadButton.disabled = false;
-                this.ui.shareButton.disabled = !( !navigator.share && !navigator.canShare );
+                this.ui.shareButton.disabled = !(navigator.share && navigator.canShare);
                 this.ui.retakeButton.style.display = 'none';
+                this.ui.downloadButton.focus();
             }
-            
             handleRetake() {
                 this.session.removeLastPhoto();
                 this.updateProgress(this.session.getProgress());
@@ -1278,11 +1126,10 @@
                 if (this.session.photos.length === 0) {
                     this.ui.retakeButton.style.display = 'none';
                 }
+                this.ui.mainButton.focus();
             }
-
             async handleDownload() {
-                this.ui.downloadButton.disabled = true;
-                this.ui.downloadButton.textContent = 'Preparing...';
+                this.ui.downloadButton.disabled = true, this.ui.downloadButton.textContent = 'Preparing...';
                 try {
                     await this.downloadManager.download();
                 } catch (error) {
@@ -1290,32 +1137,24 @@
                     this.ui.downloadButton.textContent = 'Error!';
                     setTimeout(() => this.ui.downloadButton.textContent = 'Download', 2000);
                 } finally {
-                    this.ui.downloadButton.disabled = false;
-                    this.ui.downloadButton.textContent = 'Download';
+                    this.ui.downloadButton.disabled = false, this.ui.downloadButton.textContent = 'Download';
                 }
             }
-            
             async handleShare() {
-                this.ui.shareButton.disabled = true;
-                this.ui.shareButton.textContent = 'Preparing...';
+                this.ui.shareButton.disabled = true, this.ui.shareButton.textContent = 'Preparing...';
                 try {
                     await this.downloadManager.share();
                 } catch (error) {
                     console.error('Share failed:', error);
                 } finally {
-                    this.ui.shareButton.disabled = false;
-                    this.ui.shareButton.textContent = 'Share';
+                    this.ui.shareButton.disabled = false, this.ui.shareButton.textContent = 'Share';
                 }
             }
         }
-
-        // ============================================
-        // APPLICATION INITIALIZATION
-        // ============================================
         document.addEventListener('DOMContentLoaded', () => {
-            const app = new GlowBoothApp();
+            const app = new PhotoBoothApp();
             app.init();
         });
     </script>
 </body>
-</html> 
+</html>
