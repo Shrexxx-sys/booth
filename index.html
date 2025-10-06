@@ -964,7 +964,7 @@
                 const blob = await this.generate();
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
-                link.href = url, link.download = `PhotoBooth_${Date.now()}.jpg`;
+                link.href = url, link.download = link.download = `PhotoBooth_${Date.now()}.png`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -972,7 +972,7 @@
             }
             async share() {
                 const blob = await this.generate();
-                const file = new File([blob], 'photobooth.jpg', { type: 'image/jpeg' });
+                const file = new File([blob], 'photobooth.png', { type: 'image/png' });
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     try {
                         await navigator.share({ files: [file], title: 'My PhotoBooth Creation!', text: 'Check out this photo I took with PhotoBooth!' });
