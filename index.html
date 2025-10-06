@@ -31,8 +31,8 @@
             --transition-slow: 0.5s ease;
             --container-max-width: 1400px;
             --camera-aspect-ratio: 16 / 9;
-            --polaroid-padding: clamp(10px, 2vw, 25px);
-            --polaroid-bottom: clamp(40px, 8vw, 100px);
+            --polaroid-padding: clamp(10px, 2vw, 15px);
+            --polaroid-bottom: clamp(40px, 8vw, 60px);
         }
         body.navy-mode {
             --bg-color: #0a192f;
@@ -46,6 +46,7 @@
             --shadow-color: rgba(100, 255, 218, 0.2);
             --shadow-subtle: rgba(2, 12, 27, 0.7);
             --overlay-bg: rgba(10, 25, 47, 0.85);
+            --button-text-color: var(--bg-color);
         }
         body.light-mode {
             --bg-color: #f4f4f9;
@@ -59,6 +60,7 @@
             --shadow-color: rgba(0, 95, 115, 0.2);
             --shadow-subtle: rgba(0, 0, 0, 0.1);
             --overlay-bg: rgba(255, 255, 255, 0.9);
+            --button-text-color: var(--surface-color);
         }
         * {
             box-sizing: border-box;
@@ -91,6 +93,9 @@
             clip: rect(0, 0, 0, 0);
             white-space: nowrap;
             border-width: 0;
+        }
+        .hidden {
+            display: none;
         }
         .photobooth-container {
             width: 100%;
@@ -169,7 +174,7 @@
         }
         .main-content {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: var(--spacing-lg);
             padding: var(--spacing-lg);
         }
@@ -196,6 +201,11 @@
         }
         .control-group {
             margin-bottom: var(--spacing-lg);
+            transition: opacity var(--transition-fast);
+        }
+        .control-group.disabled {
+            opacity: 0.6;
+            pointer-events: none;
         }
         .control-group>label {
             display: block;
@@ -377,7 +387,7 @@
             width: 100%;
             font-family: var(--font-display);
             font-size: var(--font-size-button);
-            color: var(--bg-color);
+            color: var(--button-text-color);
             background: var(--primary-color);
             border: 2px solid var(--primary-color);
             border-radius: var(--border-radius-md);
@@ -389,9 +399,6 @@
             font-weight: bold;
             position: relative;
             overflow: hidden;
-        }
-        body.light-mode .action-button {
-            color: var(--surface-color);
         }
         .action-button:hover:not(:disabled) {
             background-color: transparent;
@@ -454,6 +461,10 @@
             max-width: min(400px, 100%);
             margin: 0 auto;
         }
+         .output-container.polaroid {
+            max-width: min(350px, 100%);
+            margin: 0 auto;
+        }
         .photo-wrapper {
             background-color: black;
             border-radius: var(--border-radius-sm);
@@ -464,6 +475,18 @@
         }
         .photo-wrapper:hover {
             transform: scale(1.05) rotate(1deg);
+        }
+        .photo-wrapper.polaroid {
+            background-color: #fff;
+            padding: var(--polaroid-padding);
+            padding-bottom: var(--polaroid-bottom);
+            border-radius: 2px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            border: 1px solid #ddd;
+            transform: rotate(calc(var(--rotation, 0) * 1deg));
+        }
+        .photo-wrapper.polaroid:hover {
+            transform: scale(1.05) rotate(calc(var(--rotation, 0) * 1deg + 2deg));
         }
         .photo-wrapper img {
             width: 100%;
@@ -537,10 +560,10 @@
             *,
             *::before,
             *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-                scroll-behavior: auto !important;
+                animation-duration: 0.01ms;
+                animation-iteration-count: 1;
+                transition-duration: 0.01ms;
+                scroll-behavior: auto;
             }
             .flash.animate, .countdown.show {
                 animation: none;
@@ -578,21 +601,21 @@
                 <h2 id="setup-heading">1. Setup</h2>
                 <fieldset id="setup-fieldset">
                     <legend class="sr-only">Photo session configuration</legend>
-                    <div class="control-group">
+                    <div class="control-group" id="photo-count-controls">
                         <label id="photo-count-label">Photos per Session:</label>
                         <div class="options" role="radiogroup" aria-labelledby="photo-count-label">
                             <input type="radio" id="count1" name="photo-count" value="1">
-                            <label for="count1" tabindex="0">
+                            <label for="count1">
                                 <span class="option-text">1</span>
                                 <span class="sr-only">photo</span>
                             </label>
                             <input type="radio" id="count2" name="photo-count" value="2">
-                            <label for="count2" tabindex="0">
+                            <label for="count2">
                                 <span class="option-text">2</span>
                                 <span class="sr-only">photos</span>
                             </label>
                             <input type="radio" id="count4" name="photo-count" value="4" checked>
-                            <label for="count4" tabindex="0">
+                            <label for="count4">
                                 <span class="option-text">4</span>
                                 <span class="sr-only">photos</span>
                             </label>
@@ -602,12 +625,16 @@
                         <label id="layout-label">Layout Style:</label>
                         <div class="options" role="radiogroup" aria-labelledby="layout-label">
                             <input type="radio" id="layout-grid" name="layout" value="grid" checked>
-                            <label for="layout-grid" tabindex="0">
+                            <label for="layout-grid">
                                 <span class="option-text">Grid</span>
                             </label>
                             <input type="radio" id="layout-strip" name="layout" value="strip">
-                            <label for="layout-strip" tabindex="0">
+                            <label for="layout-strip">
                                 <span class="option-text">Strip</span>
+                            </label>
+                             <input type="radio" id="layout-polaroid" name="layout" value="polaroid">
+                            <label for="layout-polaroid">
+                                <span class="option-text">Polaroid</span>
                             </label>
                         </div>
                     </div>
@@ -615,19 +642,19 @@
                         <label id="filter-label">Live Filter (Preview):</label>
                         <div class="options" role="radiogroup" aria-labelledby="filter-label">
                             <input type="radio" id="filter-none" name="filter" value="none" checked>
-                            <label for="filter-none" tabindex="0">
+                            <label for="filter-none">
                                 <span class="option-text">None</span>
                             </label>
                             <input type="radio" id="filter-sepia" name="filter" value="sepia(1)">
-                            <label for="filter-sepia" tabindex="0">
+                            <label for="filter-sepia">
                                 <span class="option-text">Sepia</span>
                             </label>
                             <input type="radio" id="filter-bw" name="filter" value="grayscale(1)">
-                            <label for="filter-bw" tabindex="0">
+                            <label for="filter-bw">
                                 <span class="option-text">B&W</span>
                             </label>
                             <input type="radio" id="filter-vibrant" name="filter" value="saturate(2) contrast(1.2)">
-                            <label for="filter-vibrant" tabindex="0">
+                            <label for="filter-vibrant">
                                 <span class="option-text">Vibrant</span>
                             </label>
                         </div>
@@ -637,7 +664,7 @@
             <section class="booth-section" aria-labelledby="booth-heading">
                 <h2 id="booth-heading">2. Capture</h2>
                 <div class="camera-view" role="region" aria-label="Camera preview">
-                    <video id="video" autoplay playsinline aria-label="Live webcam feed" style="display: none;"></video>
+                    <video id="video" autoplay playsinline aria-label="Live webcam feed" class="hidden"></video>
                     <canvas id="canvas" aria-hidden="true"></canvas>
                     <div class="camera-overlay flash" id="flash" aria-hidden="true"></div>
                     <div class="camera-overlay countdown" id="countdown" role="status" aria-live="assertive"
@@ -683,6 +710,7 @@
         src="data:audio/mpeg;base64,UklGRigBAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAAABkYXRhJAEAAAD//wD/APMA9QD1APMA8gDyAPMA8gDzAPMA9ADzAPMA8wDzAO8A8ADuAO4A7gDtAOwA7QDqAOsA6ADpAOYA5QDMAa4BigGMAbABsQGvAbQBswG3AbgBuwG9AcABwAHCAcMBxAHIAcsBzQHPAdEB0wHYAdwB4AHjAfEB8gH0AfkB/gIAAgQDCAQaBDwETAR8BIgElATsBSAFOAVcBYgFqAXMBdQF6AX8BhQGMAZABlwGgAaUBqwGvAbYBvAHAAccBzQHTAdgB3wHlAfYCAwIGAhQCHQImAi8CSQJOAl8CbQJ/AocCkAKbAqECqQKyArsCwwLFAs8C1wLeAvUC/wMMgxCDFIMcgyQDJ4MyAzqDP4NAg0qDWoNjg2wDdIN9g4yDmYOlg6yDsoO+g8WDywPaA+ED5wPzA/sEBAQcBGQEcAR4BIIEjASyBNoE+gUGBSEFKwVCBVoFYAWMBbUFzAXfBesGAQYUBiEGNQZNBlUGYwZ5BoMGmAavBr0GywbqBv0HFAchBywHQAdQB1sHcwfIB/8IPAjBCLoI4wj3CSQJLQlDCVwJaQlxCYkJkQmoCb8JygnbCfQKAwoMCi0KRgpVCmIKaAqBCqMKwArlCvwLJQszDEEMVwx4DIkMrQzcDOcM/A0EDRQNKA1HDV0Ngg2VDbcN7A4ADiAORw5aDogOzA7jDwwPNg9GD18Pag9/D5cPrw/JD+oQBhATEB8QKhA0EDoQPhBFEE4QWxBcEGIQahBwEHcQhxCUEJkQoBClEKwQthC+EMcQ0BDhEO0RChEeESoRTBFaEWwRjBGeEagRyBHUEewSBhIaEiYSUhJuEn4SihKaEsYS3hMIDQ=="
         preload="auto"></audio>
     <script>
+    (function() {
         const CONFIG = {
             COUNTDOWN_SECONDS: 3,
             PHOTO_WIDTH: 700,
@@ -690,11 +718,22 @@
             DOWNLOAD_PADDING: 40,
             MAX_CANVAS_SIZE: 4096,
             JPEG_QUALITY: 0.98,
+            THEMES: {
+                NAVY: 'navy-mode',
+                LIGHT: 'light-mode',
+            },
+            LAYOUTS: {
+                GRID: 'grid',
+                STRIP: 'strip',
+                POLAROID: 'polaroid',
+            },
         };
         const Utils = {
             $(selector, parent = document) {
                 const element = parent.querySelector(selector);
-                if (!element) console.warn(`Element not found: ${selector}`);
+                if (!element) {
+                    throw new Error(`Fatal Error: UI element not found for selector: ${selector}`);
+                }
                 return element;
             },
             $$(selector, parent = document) {
@@ -708,8 +747,8 @@
                 img.src = src;
             }),
             calculateCanvasDimensions(itemCount, layout, itemWidth, itemHeight, padding) {
-                const cols = layout === 'grid' ? Math.ceil(Math.sqrt(itemCount)) : 1;
-                const rows = layout === 'grid' ? Math.ceil(itemCount / cols) : itemCount;
+                const cols = layout === CONFIG.LAYOUTS.GRID ? Math.ceil(Math.sqrt(itemCount)) : 1;
+                const rows = layout === CONFIG.LAYOUTS.GRID ? Math.ceil(itemCount / cols) : itemCount;
                 const width = (itemWidth * cols) + (padding * (cols + 1));
                 const height = (itemHeight * rows) + (padding * (rows + 1));
                 const scale = Math.min(1, CONFIG.MAX_CANVAS_SIZE / Math.max(width, height));
@@ -742,14 +781,14 @@
                         audio: false
                     });
                     this.video.srcObject = this.stream;
-                    this.video.style.display = 'block';
+                    this.video.classList.remove('hidden');
                     this.errorElement.style.display = 'none';
                     return true;
                 } catch (error) {
                     console.error('Camera initialization error:', error);
                     this.errorElement.innerHTML = `<p>🎥</p><p>Could not access webcam. Please check permissions and refresh.</p>`;
                     this.errorElement.style.display = 'flex';
-                    this.video.style.display = 'none';
+                    this.video.classList.add('hidden');
                     return false;
                 }
             }
@@ -865,6 +904,10 @@
                 photos.forEach((photoSrc, i) => {
                     const wrapper = document.createElement('div');
                     wrapper.className = 'photo-wrapper';
+                    if (settings.layout === CONFIG.LAYOUTS.POLAROID) {
+                        wrapper.classList.add(CONFIG.LAYOUTS.POLAROID);
+                        wrapper.style.setProperty('--rotation', Utils.getRandomRotation());
+                    }
                     const img = document.createElement('img');
                     img.src = photoSrc;
                     img.alt = `Photo ${i + 1} of ${photos.length}`;
@@ -880,23 +923,39 @@
             async generate() {
                 const { photos, settings } = this.session;
                 const images = await Promise.all(photos.map(src => Utils.loadImage(src)));
-                const itemW = CONFIG.PHOTO_WIDTH;
-                const itemH = CONFIG.PHOTO_HEIGHT;
+                const isPolaroid = settings.layout === CONFIG.LAYOUTS.POLAROID;
+                const pPad = isPolaroid ? 25 : 0;
+                const pBottom = isPolaroid ? 60 : 0;
+                const itemW = CONFIG.PHOTO_WIDTH + (pPad * 2);
+                const itemH = CONFIG.PHOTO_HEIGHT + pPad + pBottom;
                 const dims = Utils.calculateCanvasDimensions(images.length, settings.layout, itemW, itemH, CONFIG.DOWNLOAD_PADDING);
+                
                 const canvas = document.createElement('canvas');
                 canvas.width = dims.width;
                 canvas.height = dims.height;
                 const ctx = canvas.getContext('2d', { alpha: false });
-                ctx.fillStyle = document.body.classList.contains('navy-mode') ? '#0a192f' : '#f4f4f9';
+                ctx.fillStyle = document.body.classList.contains(CONFIG.THEMES.NAVY) ? '#0a192f' : '#f4f4f9';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 const sPad = CONFIG.DOWNLOAD_PADDING * dims.scale;
                 const sItemW = itemW * dims.scale, sItemH = itemH * dims.scale;
+                const sPhotoW = CONFIG.PHOTO_WIDTH * dims.scale, sPhotoH = CONFIG.PHOTO_HEIGHT * dims.scale;
+                const sPpad = pPad * dims.scale;
                 for (let i = 0; i < images.length; i++) {
-                    const row = settings.layout === 'grid' ? Math.floor(i / dims.cols) : i;
-                    const col = settings.layout === 'grid' ? i % dims.cols : 0;
+                    const row = settings.layout === CONFIG.LAYOUTS.GRID ? Math.floor(i / dims.cols) : i;
+                    const col = settings.layout === CONFIG.LAYOUTS.GRID ? i % dims.cols : 0;
                     const x = (col * sItemW) + ((col + 1) * sPad), y = (row * sItemH) + ((row + 1) * sPad);
+                    
                     ctx.save();
-                    ctx.drawImage(images[i], x, y, sItemW, sItemH);
+                    if (isPolaroid) {
+                        ctx.fillStyle = '#FFFFFF';
+                        ctx.shadowColor = 'rgba(0,0,0,0.3)';
+                        ctx.shadowBlur = 20 * dims.scale;
+                        ctx.shadowOffsetX = 2 * dims.scale;
+                        ctx.shadowOffsetY = 2 * dims.scale;
+                        ctx.fillRect(x, y, sItemW, sItemH);
+                        ctx.shadowColor = 'transparent';
+                    }
+                    ctx.drawImage(images[i], isPolaroid ? x + sPpad : x, isPolaroid ? y + sPpad : y, sPhotoW, sPhotoH);
                     ctx.restore();
                     if (i % 2 === 0) await Utils.delay(0);
                 }
@@ -933,18 +992,18 @@
                 const savedTheme = localStorage.getItem('photobooth-theme');
                 const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                 if (savedTheme) {
-                    this.setTheme(savedTheme);
+                    this.setTheme(savedTheme === 'light' ? 'light' : 'navy');
                 } else {
                     this.setTheme(prefersDark ? 'navy' : 'light');
                 }
             }
             setTheme(theme) {
-                document.body.className = theme === 'navy' ? 'navy-mode' : 'light-mode';
+                document.body.className = theme === 'navy' ? CONFIG.THEMES.NAVY : CONFIG.THEMES.LIGHT;
                 this.toggle.checked = theme === 'navy';
                 localStorage.setItem('photobooth-theme', theme);
             }
             toggleTheme() {
-                const newTheme = document.body.classList.contains('navy-mode') ? 'light' : 'navy';
+                const newTheme = document.body.classList.contains(CONFIG.THEMES.NAVY) ? 'light' : 'navy';
                 this.setTheme(newTheme);
             }
         }
@@ -998,6 +1057,7 @@
                     undoButton: Utils.$('#undo-btn'),
                     redoButton: Utils.$('#redo-btn'),
                     setupFieldset: Utils.$('#setup-fieldset'),
+                    photoCountControls: Utils.$('#photo-count-controls'),
                     progressIndicator: Utils.$('#progress-indicator'),
                     progressBar: Utils.$('.progress-bar'),
                     flash: Utils.$('#flash'),
@@ -1019,9 +1079,22 @@
                 this.ui.undoButton.addEventListener('click', () => this.handleUndo());
                 this.ui.redoButton.addEventListener('click', () => this.handleRedo());
                 this.ui.setupFieldset.addEventListener('change', e => {
-                    if (e.target.name === 'filter') this.camera.applyFilter(e.target.value);
+                    if (e.target.name === 'filter') {
+                        this.camera.applyFilter(e.target.value);
+                    }
+                    if (e.target.name === 'layout') {
+                        this.handleLayoutChange(e.target.value);
+                    }
                 });
                 this.ui.themeToggle.addEventListener('change', () => this.themeManager.toggleTheme());
+            }
+            handleLayoutChange(layout) {
+                if (layout === CONFIG.LAYOUTS.POLAROID) {
+                    Utils.$('#count1').checked = true;
+                    this.ui.photoCountControls.classList.add('disabled');
+                } else {
+                    this.ui.photoCountControls.classList.remove('disabled');
+                }
             }
             setMainButton(text, disabled, ariaLabel = text) {
                 this.ui.mainButton.textContent = text;
@@ -1035,10 +1108,8 @@
             updateUndoRedoState() {
                 const canUndo = this.session.photos.length > 0;
                 const canRedo = this.session.undonePhotos.length > 0;
-                
                 this.ui.undoButton.disabled = !canUndo;
                 this.ui.redoButton.disabled = !canRedo;
-
                 const inProgress = this.session.isActive && !this.session.isComplete();
                 this.ui.undoButton.style.display = inProgress ? 'block' : 'none';
                 this.ui.redoButton.style.display = inProgress ? 'block' : 'none';
@@ -1048,8 +1119,12 @@
                 if (!this.isCameraReady) {
                     this.setMainButton("Starting...", true, "Starting Camera");
                     this.isCameraReady = await this.camera.initialize();
-                    this.setMainButton(this.isCameraReady ? "Start Session" : "Camera Error", !this.isCameraReady);
-                    if (this.isCameraReady) this.ui.mainButton.focus();
+                    if (!this.isCameraReady) {
+                        this.setMainButton("Retry Camera", false, "Retry Camera Initialization");
+                    } else {
+                        this.setMainButton("Start Session", false);
+                        this.ui.mainButton.focus();
+                    }
                     return;
                 }
                 this.session.isActive ? await this.capturePhoto() : this.startSession();
@@ -1151,6 +1226,8 @@
             const app = new PhotoBoothApp();
             app.init();
         });
+    })();
     </script>
 </body>
 </html>
+
